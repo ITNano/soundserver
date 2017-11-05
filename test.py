@@ -8,11 +8,18 @@ import sys
 if len(sys.argv) < 2:
     print("Plays a wave file.\n\nUsage: %s filename.wav" % sys.argv[0])
     sys.exit(-1)
+    
+output_device = None
+if len(sys.argv) > 2:
+    output_device = int(sys.argv[2])
 
 wf = wave.open(sys.argv[1], 'rb')
 
 # instantiate PyAudio (1)
 p = pyaudio.PyAudio()
+
+print("\nFound " + str(p.get_device_count()) + " devices:")
+print("\n".join(["\t"+str(index)+": "+p.get_device_info_by_index(index)["name"] for index in range(p.get_device_count())]))
 
 # define callback (2)
 def callback(in_data, frame_count, time_info, status):
@@ -23,6 +30,7 @@ def callback(in_data, frame_count, time_info, status):
 stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
                 channels=wf.getnchannels(),
                 rate=wf.getframerate(),
+                output_device_index=output_device,
                 output=True,
                 stream_callback=callback)
 
