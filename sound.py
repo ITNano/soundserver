@@ -37,8 +37,10 @@ class Sound(object):
 class SoundcardStream(object):
 
     def __init__(self, p, soundcard, width=2, channels=2, rate=44100):
+        self.soundcard = soundcard
         self.mixer = mixer.Mixer(width, channels, rate)
         try:
+            print("Loading soundcard "+str(soundcard))
             self.stream = p.open(format=p.get_format_from_width(width), channels=channels, rate=rate, output_device_index=soundcard, output=True, stream_callback=self.get_data)
         except:
             self.stream = None
@@ -48,6 +50,7 @@ class SoundcardStream(object):
         return (self.mixer.get_data(frame_count, time_info["input_buffer_adc_time"]), pyaudio.paContinue)
         
     def add_sound(self, sound):
+        print("Adding sound to soundcard "+str(self.soundcard))
         self.mixer.add_sound(sound)
         
     def start_stream(self):
